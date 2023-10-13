@@ -29,6 +29,7 @@ import java.util.List;
 public class PostController {
 
     private PostService postService;
+    Logger logger= LoggerFactory.getLogger(PostController.class);
 
     public PostController(PostService postService) {
         this.postService = postService;
@@ -49,6 +50,7 @@ public class PostController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto) {
+        logger.info(postDto.toString());
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 

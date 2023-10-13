@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Include jQuery library -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Add a gray background color with some padding */
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f1f1f1;
+        }
+
+        /* Header/Blog Title */
+        .header {
+            padding: 20px;
+            font-size: 20px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-buttons button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        /* Create a login card */
+        .login-card {
+            background-color: white;
+            padding: 20px;
+            margin: 0 auto;
+            width: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .login-card h2 {
+            text-align: center;
+        }
+
+        .login-card label, .login-card input {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .login-card input[type="text"], .login-card input[type="password"] {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .login-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin: 20px auto;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px;
+            text-align: center;
+            background: #ddd;
+            margin-top: 20px;
+        }
+
+        /* Responsive layout - when the screen is less than 800px wide, make the card centered */
+        @media screen and (max-width: 800px) {
+            .login-card {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+  <h2>Login</h2>
+  <div class="header-buttons">
+    <button onclick="location.href='/index'">Home</button>
+    <button onclick="location.href='/register.html'">Register</button>
+  </div>
+</div>
+
+<div class="login-card">
+  <h2>Login</h2>
+  <form id="loginForm" action="/login" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <label for= "password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<div class="footer">
+  <h2>Footer</h2>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Create a JSON object from the form data
+    const data = {
+        usernameOrEmail: username,
+        password: password
+    };
+
+    // Send the JSON data to the authentication endpoint
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json()) // Parse the response as JSON
+    .then(data =>
+    {
+    alert(data.accessToken);
+        // Check if the authentication was successful and a token was generated
+        if (data.accessToken) {
+            // Assuming `data.accessToken` contains your JWT token
+            const token = data.accessToken;
+
+            // Set the token in a cookie with a 1-hour expiration
+            document.cookie = `jwtToken=${token}; expires=${new Date(Date.now() + 604800000)}; path=/`;
+
+            // Authentication was successful; send a request to the redirection endpoint
+            fetch('/login',
+                {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Include the JWT token in the request headers
+                    'Authorization': `Bearer ${data.accessToken}`
+                }
+            })
+            .then(response => {
+              //response.json();
+              window.location.href='/';
+              }) // Parse the response as JSON if needed
+            //.then(redirectData => {
+                // Handle the redirection response
+            //    console.log(redirectData);
+                // Redirect to the index page here, if needed
+            //    window.location.href = '/';
+            //})
+            .catch(redirectError => {
+                console.error('Error in redirection:', redirectError);
+            });
+        } else {
+            // Authentication failed; handle the error here
+            console.error('Authentication failed:', data.error);
+        }
+    })
+    .catch(authError => {
+        console.error('Error in authentication:', authError);
+    });
+});
+</script>
+</body>
+</html>

@@ -1,15 +1,209 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title>Single Post</title>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+                * {
+            box-sizing: border-box;
+        }
+
+        /* Add a gray background color with some padding */
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f1f1f1;
+        }
+
+        /* Header/Blog Title */
+        .header {
+            padding: 20px;
+            font-size: 20px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-buttons button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        /* Create a login card */
+        .login-card {
+            background-color: white;
+            padding: 20px;
+            margin: 0 auto;
+            width: 50%;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .login-card h2 {
+            text-align: center;
+        }
+
+        .login-card label, .login-card input {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .login-card input[type="text"], .login-card input[type="password"] {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .login-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin: 20px auto;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px;
+            text-align: center;
+            background: #ddd;
+            margin-top: 20px;
+        }
+
+        /* size of the textarea */
+        .matching-size {
+          width: 100%;
+          height: 200px;
+        }
+
+        /* Responsive layout - when the screen is less than 800px wide, make the card centered */
+        @media screen and (max-width: 800px) {
+            .login-card {
+                width: 80%;
+            }
+        }
+  </style>
 </head>
 <body>
-<center>
-<h2 th:text="${title}">first name</h2></center>
-<h4 th:text="${description}">description</h4>
-<br>
-<p th:text="${content}">content</p>
-<p th:text="${comment}">comments</p>
+
+<div class="header">
+    <h2>Create New Post</h2>
+    <div class="header-buttons">
+        <button onclick="location.href='/index'">Home</button>
+        <button id="logoutButton">Logout</button>
+    </div>
+</div>
+
+<div class="login-card">
+    <h2>Create New Post</h2>
+    <form id="postForm">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" required class="matching-size"></textarea>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            <option value="2">Java</option>
+            <option value="Category2">Category2</option>
+            <option value="Category3">Category3</option>
+        </select>
+        <button type="submit">Create Post</button>
+    </form>
+</div>
+
+<div class="footer">
+    <h2>Footer</h2>
+</div>
+
+<script>
+// Function to delete the JWT token cookie
+function deleteTokenCookie() {
+  document.cookie = 'jwtToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  alert('Logged out successfully.'); // You can replace this with a message of your choice
+}
+document.getElementById('postForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const content = document.getElementById('content').value;
+    const category = document.getElementById('category').value;
+
+    // Retrieve the accessToken from the cookie
+    const token = document.cookie
+     .split('; ')
+     .find(row => row.startsWith('jwtToken='))
+     .split('=')[1];
+
+    // Create a JSON object with the post data
+    const postData = {
+        title: title,
+        description: description,
+        content: content,
+        categoryId: category
+    };
+
+    // Send the JSON data to the API endpoint to create the post
+    fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(postData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Assuming the API returns the ID of the newly created post
+        const postIdString = data.id; // Assuming postIdString is a string like "123"
+const postId = parseInt(postIdString, 10); // Convert the string to a base-10 integer (long)
+alert(data);
+if (!isNaN(postId)) {
+    // postId is a valid long
+    // Now you can use the postId as a long value
+    console.log("Post ID as long: " + postId);
+        // Redirect to the created post's API endpoint
+        window.location.href = `/api/posts/${postId}`;
+} else {
+    // Handle the case where the conversion fails
+    console.error("Failed to convert postId to long");
+
+}
+
+
+        // Redirect to the created post's API endpoint
+        window.location.href = `/api/posts/${postId}`;
+    })
+    .catch(error => {
+        // Handle errors, e.g., display an error message
+        console.error('Error:', error);
+    });
+});
+document.getElementById('logoutButton').addEventListener('click', function () {
+  deleteTokenCookie(); // Call the function to delete the token cookie
+  window.location.href = '/login'; // Redirect to the login page
+});
+</script>
+
 </body>
 </html>

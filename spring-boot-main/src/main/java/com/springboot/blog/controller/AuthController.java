@@ -7,6 +7,8 @@ import com.springboot.blog.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
         name = "Authentication process like Login and Register"
 )
 public class AuthController {
+    Logger logger= LoggerFactory.getLogger(AuthController.class);
     private AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -37,6 +40,7 @@ public class AuthController {
         String token = authService.login(loginDto);
         JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
         jwtAuthResponse.setAccessToken(token);
+        logger.info(jwtAuthResponse.getAccessToken());
         return ResponseEntity.ok(jwtAuthResponse);
     }
 
