@@ -80,7 +80,7 @@ public class PostServiceImpl implements PostService {
 //        List<Post> postList= postRepository.findAll();
         Page<Post> posts= postRepository.findAll(pageable);
         List<Post> postList=posts.getContent();
-        List<PostDto> content= postList.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+        List<PostDto> content= postList.stream().map(this::mapToDto).collect(Collectors.toList());
         PostResponse postResponse=new PostResponse();
         postResponse.setContent(content);
         postResponse.setPageNo(posts.getNumber());

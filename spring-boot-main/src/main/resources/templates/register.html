@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Include jQuery library -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
         * {
             box-sizing: border-box;
         }
@@ -62,7 +62,7 @@
             margin: 10px 0;
         }
 
-        .login-card input[type="text"], .login-card input[type="password"] {
+        .login-card input[type="text"], .login-card input[type="password"], .login-card input[type="email"] {
             width: 100%;
             padding: 10px;
         }
@@ -95,98 +95,78 @@
             }
         }
     </style>
-  <title>Login</title>
 </head>
 <body>
 
 <div class="header">
-  <h2>Login</h2>
-  <div class="header-buttons">
-    <button onclick="location.href='/index'">Home</button>
-    <button onclick="location.href='/register'">Register</button>
-  </div>
+    <h2>Register</h2>
+    <div class="header-buttons">
+        <button onclick="location.href='/index'">Home</button>
+        <button onclick="location.href='/login'">Login</button>
+    </div>
 </div>
 
 <div class="login-card">
-  <h2>Login</h2>
-  <form id="loginForm" action="/login" method="post">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <label for= "password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <button type="submit">Login</button>
-  </form>
+    <h2>Register</h2>
+    <form id="registerForm" action="/api/auth/register" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Register</button>
+    </form>
 </div>
 
 <div class="footer">
-  <h2>Footer</h2>
+    <h2>Footer</h2>
 </div>
 
 <script>
-document.getElementById('loginForm').addEventListener('submit', function (event) {
+document.getElementById('registerForm').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent the default form submission
 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value;
+    const name = document.getElementById('name').value;
 
     // Create a JSON object from the form data
     const data = {
-        usernameOrEmail: username,
-        password: password
+        username: username,
+        password: password,
+        email: email,
+        name: name
     };
 
     // Send the JSON data to the authentication endpoint
-    fetch('/api/auth/login', {
+    fetch('/api/auth/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json()) // Parse the response as JSON
-    .then(data =>
-    {
-    alert(data.accessToken);
-        // Check if the authentication was successful and a token was generated
-        if (data.accessToken) {
-            // Assuming `data.accessToken` contains your JWT token
-            const token = data.accessToken;
-
-            // Set the token in a cookie with a 1-hour expiration
-            document.cookie = `jwtToken=${token}; expires=${new Date(Date.now() + 604800000)}; path=/`;
-
-            // Authentication was successful; send a request to the redirection endpoint
-            fetch('/login',
-                {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Include the JWT token in the request headers
-                    'Authorization': `Bearer ${data.accessToken}`
-                }
-            })
-            .then(response => {
-              //response.json();
-              window.location.href='/';
-              }) // Parse the response as JSON if needed
-            //.then(redirectData => {
-                // Handle the redirection response
-            //    console.log(redirectData);
-                // Redirect to the index page here, if needed
-            //    window.location.href = '/';
-            //})
-            .catch(redirectError => {
-                console.error('Error in redirection:', redirectError);
-            });
+    .then(response => response.text()) // Read the response body as text
+    .then(text => {
+        if (text.includes('User regiseter successfully')) {
+            // Registration was successful; redirect to the login page
+            window.location.href = '/login';
         } else {
-            // Authentication failed; handle the error here
-            console.error('Authentication failed:', data.error);
+            // Display an alert box with the error message
+            alert(text);
         }
     })
-    .catch(authError => {
-        console.error('Error in authentication:', authError);
+
+    .catch(error => {
+        alert('Error in registration:', error);
     });
 });
 </script>
+
+
 </body>
 </html>

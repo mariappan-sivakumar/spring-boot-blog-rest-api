@@ -100,6 +100,7 @@
             }
         }
     </style>
+    <title>Mariappan Blog</title>
 </head>
 <body>
 
@@ -107,7 +108,7 @@
     <h2>My Blog for test API</h2>
     <div class="header-buttons">
         <button onclick="location.href='/login'">Login</button>
-        <button onclick="location.href='/register.html'">Register</button>
+        <button onclick="location.href='/register'">Register</button>
     </div>
 </div>
 
@@ -123,7 +124,12 @@
         </div>
         <div class="card">
             <h3>Popular Post</h3>
-            <div class="card">Image</div><br>
+            <div class="card">
+                <h2>Search</h2>
+                <input type="text" id="searchInput" placeholder="Enter a search query">
+                <button id="searchButton">Search</button>
+            </div>
+            <br>
             <div class="card">Image</div><br>
             <div class="card">Image</div>
         </div>
@@ -141,24 +147,17 @@
 <script>
     $(document).ready(function () {
         $.get('/api/posts', function (data) {
-            var blogPosts = data.content; // Get the array of blog posts
-            var blogContainer = $('#blogContainer'); // Get the container for blog posts
-            var pageCount = $('#pageCount'); // Get the container for the page count
+            var blogPosts = data.content;
+            var blogContainer = $('#blogContainer');
+            var pageCount = $('#pageCount');
 
-            // Loop through each blog post and generate HTML
             $.each(blogPosts, function (index, post) {
-                // Create a div for each blog post
                 var postDiv = $('<div class="card">');
-
-                // Add the post title
                 postDiv.append($('<h2>').text(post.title));
-
-                // Add the post description and content
                 postDiv.append($('<h5>').text(post.description));
                 postDiv.append($('<p>').text(post.content));
-
-                // Add comments
                 postDiv.append($('<p>').text('Comments:'));
+
                 var comments = post.comments;
                 $.each(comments, function (index, comment) {
                     var commentDiv = $('<div class="comment">');
@@ -167,12 +166,37 @@
                     postDiv.append(commentDiv);
                 });
 
-                // Append the post div to the container for blog posts
                 blogContainer.append(postDiv);
             });
 
-            // Update the page count
             pageCount.text('Page ' + (data.pageNo + 1) + ' of ' + data.totalPages);
+        });
+
+        // Search button click event
+        $('#searchButton').click(function () {
+            var query = $('#searchInput').val();
+            if (query) {
+                $.get('/api/posts/search?query=' + query, function (data) {
+                    blogContainer.empty(); // Clear existing blog posts
+                    $.each(data, function (index, post) {
+                        var postDiv = $('<div class="card">');
+                        postDiv.append($('<h2>').text(post.title));
+                        postDiv.append($('<h5>').text(post.description));
+                        postDiv.append($('<p>').text(post.content));
+                        postDiv.append($('<p>').text('Comments:'));
+
+                        var comments = post.comments;
+                        $.each(comments, function (index, comment) {
+                            var commentDiv = $('<div class="comment">');
+                            commentDiv.append($('<strong>').text(comment.name));
+                            commentDiv.append($('<p>').text(comment.body));
+                            postDiv.append(commentDiv);
+                        });
+
+                        blogContainer.append(postDiv);
+                    });
+                });
+            }
         });
     });
 </script>

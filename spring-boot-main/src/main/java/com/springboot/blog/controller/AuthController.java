@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
         name = "Authentication process like Login and Register"
 )
 public class AuthController {
-    Logger logger= LoggerFactory.getLogger(AuthController.class);
+    Logger logger = LoggerFactory.getLogger(AuthController.class);
     private AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -53,19 +53,9 @@ public class AuthController {
             responseCode = "201",
             description = "Http Status 201 Created"
     )
-    @PostMapping(value = "/signup")
+    @PostMapping(value = {"/signup", "/register"})
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
         String response = authService.register(registerDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-    @PostMapping(value = "/register")
-    public ResponseEntity<String> registerHTML(@ModelAttribute RegisterDto registerDto) {
-        String response = authService.register(registerDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @GetMapping(value = "/register")
-    public String register(){
-        return "index";
     }
 }

@@ -26,4 +26,14 @@ public class HtmlController {
     public String newPost(){
         return "post";
     }
+
+    @GetMapping("/register")
+    public String register(){
+        return "register";
+    }
+    @PostMapping("/register")
+    public String registerPost(){
+        logger.info("Register");
+        return "redirect:/index";
+    }
 }
